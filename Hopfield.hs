@@ -14,7 +14,6 @@ data Hopfield = H Int (Map (Int, Int) Int) [Pattern]
 
 type State = Seq Int
 
-si :: Seq Int -> Int -> Int
 si = Seq.index
 
 weight :: Hopfield -> Int -> Int -> Int
@@ -32,12 +31,12 @@ input = (,)
 net :: (Hopfield, State) -> Int -> Int
 net (h@(H n _ _), xs) i = sum [weight h i j * xs `si` j | j <- [0..n-1]]
 
-update :: Int -> (Hopfield, State) -> (Hopfield, State)
-update i (h@(H n _ _), xs) = (h, Seq.update i nx xs)
+update :: (Hopfield, State) -> Int -> (Hopfield, State)
+update (h@(H n _ _), xs) i = (h, Seq.update i nx xs)
   where nx = if net (h, xs) i > 0 then 1 else -1
 
-zeroNetwork :: Int -> Hopfield
-zeroNetwork numNeurons = H numNeurons (Map.fromList $ zip pairs (repeat 0)) []
+empty :: Int -> Hopfield
+empty numNeurons = H numNeurons (Map.fromList $ zip pairs (repeat 0)) []
   where pairs = [(i, j) | i <- neurons, j <- neurons, i < j]
         neurons = [0..numNeurons - 1]
 
@@ -53,5 +52,4 @@ energy2 (h@(H n ws _), xs) = (-1/2) * fromIntegral
 updateAll :: (Hopfield, State) -> IO (Hopfield, State)
 updateAll (h@(H n _ _), xs) = do
   updateOrder <- shuffle [0..n-1]
-  return $ foldl f (h, xs) updateOrder
-  where f s n = update n s
+  return $ foldl update (h, xs) updateOrder
