@@ -9,6 +9,5 @@ convert False = -1
 
 main = do
   [lenStr, patternFilename] <- getArgs
-  let len = read lenStr
-  list <- replicateM len randomIO
+  list <- replicateM (read lenStr) randomIO
   writeFile patternFilename $ show $ map convert list

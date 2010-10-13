@@ -4,6 +4,7 @@ import Control.Monad
 import System.Environment
 import System.Random
 
+-- 'flipProb p v' has p probability of negating v
 flipProb :: Float -> Int -> IO Int
 flipProb p v = do
   r <- randomRIO (0, 1)
@@ -13,7 +14,5 @@ flipProb p v = do
 main = do
   [patternFilename, newPatternFilename, percentStr] <- getArgs
   patternStr <- readFile patternFilename
-  let pattern = read patternStr
-      percent = read percentStr
-  npattern <- forM pattern $ flipProb (percent / 100)
+  npattern <- forM (read patternStr) $ flipProb ((read percentStr) / 100)
   writeFile newPatternFilename $ show npattern
